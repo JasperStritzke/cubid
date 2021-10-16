@@ -1,0 +1,7 @@
+.idea/
+.DS_STORE
+
+logs/
+
+#folder used locally for debugging
+debug/
