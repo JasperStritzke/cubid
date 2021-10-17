@@ -2,6 +2,7 @@ package controller_network
 
 import (
 	"github.com/jasperstritzke/cubid/pkg/network"
+	"github.com/jasperstritzke/cubid/pkg/network/packet"
 )
 
 type ControllerServer struct {
@@ -27,5 +28,5 @@ func onConnect(endpoint *network.Endpoint) {
 func onDisconnect(endpoint *network.Endpoint) {
 }
 
-func onPacket(endpoint *network.Endpoint, packet network.Packet) {
+func onPacket(endpoint *network.Endpoint, packet packet.Packet) {
 }

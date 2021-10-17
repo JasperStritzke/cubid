@@ -5,7 +5,15 @@ import (
 	"os"
 )
 
-func InitConfigIfNotExists(path string, config interface{}) error {
+func WrapExistingConfig(cfg interface{}) func() interface{} {
+	return func() interface{} {
+		return cfg
+	}
+}
+
+func InitConfigIfNotExists(path string, configCallback func() interface{}) error {
+	cfg := configCallback()
+
 	file, err, created := fileutil.OpenFileOrCreate(path)
 
 	if err != nil {
@@ -15,7 +23,7 @@ func InitConfigIfNotExists(path string, config interface{}) error {
 	if created {
 		encoder := fileutil.NewPrettyDecoder(file)
 
-		encodeErr := encoder.Encode(config)
+		encodeErr := encoder.Encode(cfg)
 
 		if encodeErr != nil {
 			return encodeErr

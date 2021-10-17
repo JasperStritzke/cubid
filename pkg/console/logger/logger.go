@@ -32,7 +32,7 @@ func init() {
 	printHeader()
 }
 
-func ActiveLogs() {
+func ActivateLogs() {
 	fileName := time.Now().Format("15-04-05 02-01-2006" + ".log")
 	path := "logs/" + fileName
 

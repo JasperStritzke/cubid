@@ -3,6 +3,7 @@ package executor_network
 import (
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
 	"github.com/jasperstritzke/cubid/pkg/network"
+	"github.com/jasperstritzke/cubid/pkg/network/packet"
 )
 
 type ExecutorServer struct {
@@ -30,5 +31,5 @@ func onClientDisconnect(endpoint *network.Endpoint) {
 	logger.Info("Disconnecting")
 }
 
-func onPacketFromClient(endpoint *network.Endpoint, packet network.Packet) {
+func onPacketFromClient(endpoint *network.Endpoint, packet packet.Packet) {
 }

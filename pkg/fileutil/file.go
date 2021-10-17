@@ -1,6 +1,8 @@
 package fileutil
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 )
@@ -47,4 +49,42 @@ func CreateIfNotExists(pth string) error {
 		_ = file.Close()
 	}
 	return err
+}
+
+func WriteIfNotExists(pth, content string) bool {
+	_, e := os.Stat(pth)
+
+	if e == nil {
+		return false
+	}
+
+	dir := path.Dir(pth)
+
+	err := os.MkdirAll(dir, os.ModePerm)
+
+	if err != nil {
+		fmt.Println("Unable to write to file " + pth + ": " + err.Error())
+		return false
+	}
+
+	file, err := os.Create(pth)
+
+	if err != nil {
+		fmt.Println("Unable to write to file " + pth + ": " + err.Error())
+		return false
+	}
+
+	_, _ = file.WriteString(content)
+	file.Close()
+	return true
+}
+
+func ReadString(pth string) string {
+	bytes, err := ioutil.ReadFile(pth)
+
+	if err != nil {
+		return ""
+	}
+
+	return string(bytes)
 }

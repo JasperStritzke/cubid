@@ -3,6 +3,7 @@ package network
 import (
 	"encoding/json"
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
+	packet2 "github.com/jasperstritzke/cubid/pkg/network/packet"
 	"net"
 )
 
@@ -50,7 +51,7 @@ func (client *Client) Connect() {
 	client.listeners.ConnectListener(&endpoint)
 
 	for {
-		var packet Packet
+		var packet packet2.Packet
 		decodeErr := decoder.Decode(&packet)
 
 		if decodeErr != nil {

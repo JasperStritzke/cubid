@@ -6,7 +6,9 @@ import (
 	"github.com/jasperstritzke/cubid/pkg/config"
 	"github.com/jasperstritzke/cubid/pkg/console/commandline"
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
+	"github.com/jasperstritzke/cubid/pkg/security"
 	"io"
+	"os"
 	"strings"
 )
 
@@ -21,6 +23,8 @@ func Main() {
 	logger.Info("Booting up executor...")
 
 	loadConfig()
+
+	security.LoadControllerKey()
 
 	connectClient()
 	startServer()
@@ -48,15 +52,19 @@ func connectClient() *executor_network.ExecutorClient {
 }
 
 func loadConfig() {
-	configPath := "config/base.json"
-	err := config.InitConfigIfNotExists(configPath, DefaultConfig)
+	configPath := "base.json"
+	err := config.InitConfigIfNotExists(configPath, configForm)
+
 	if err != nil {
-		panic(err)
+		logger.Error("Unable to create configuration.")
+		os.Exit(1)
 	}
 
 	err = config.LoadConfig(configPath, &controllerConfig)
+
 	if err != nil {
-		panic(err)
+		logger.Error("Unable to load configuration")
+		os.Exit(1)
 	}
 }
 

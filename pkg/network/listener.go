@@ -1,7 +1,9 @@
 package network
 
+import "github.com/jasperstritzke/cubid/pkg/network/packet"
+
 type ConnectionFunc = func(endpoint *Endpoint)
-type PacketListenerFunc = func(endpoint *Endpoint, packet Packet)
+type PacketListenerFunc = func(endpoint *Endpoint, packet packet.Packet)
 
 type Listener struct {
 	ConnectListener    ConnectionFunc

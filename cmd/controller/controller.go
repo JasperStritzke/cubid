@@ -6,12 +6,12 @@ import (
 	"github.com/jasperstritzke/cubid/pkg/config"
 	"github.com/jasperstritzke/cubid/pkg/console/commandline"
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
+	"github.com/jasperstritzke/cubid/pkg/security"
 	"io"
 	"strings"
 )
 
 var controllerConfig Config
-
 var controllerServer *controller_network.ControllerServer
 
 func Main() {
@@ -22,6 +22,10 @@ func Main() {
 	startServer()
 
 	defer InitiateShutdown()
+
+	//initialize key if not existing
+	security.InitControllerKey()
+	security.LoadControllerKey()
 
 	//Always must be executed last because it's a blocking task.
 	startCommandLine()
@@ -35,8 +39,8 @@ func startServer() *controller_network.ControllerServer {
 }
 
 func loadConfig() {
-	configPath := "config/base.json"
-	err := config.InitConfigIfNotExists(configPath, DefaultConfig)
+	configPath := "base.json"
+	err := config.InitConfigIfNotExists(configPath, config.WrapExistingConfig(DefaultConfig))
 	if err != nil {
 		panic(err)
 	}

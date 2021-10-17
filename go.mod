@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/ivpusic/golog v0.0.0-20170608213328-28640bee649f
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 )
 
 require (
