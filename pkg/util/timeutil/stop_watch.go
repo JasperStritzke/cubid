@@ -9,15 +9,15 @@ type StopWatch struct {
 	end   time.Time
 }
 
-func (stopWatch StopWatch) Start() {
+func (stopWatch *StopWatch) Start() {
 	stopWatch.start = time.Now()
 }
 
-func (stopWatch StopWatch) Stop() {
+func (stopWatch *StopWatch) Stop() {
 	stopWatch.end = time.Now()
 }
 
-func (stopWatch StopWatch) GetDurationInMilliseconds() int64 {
+func (stopWatch *StopWatch) GetDurationInMilliseconds() int64 {
 	if stopWatch.start.After(stopWatch.end) {
 		return -1
 	}

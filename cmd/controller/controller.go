@@ -20,7 +20,7 @@ func Main() {
 
 	loadConfig()
 
-	startServer()
+	go startServer()
 
 	defer InitiateShutdown()
 
@@ -37,7 +37,7 @@ func Main() {
 func startServer() *controller_network.ControllerServer {
 	server := controller_network.NewControllerServer(controllerConfig.Host)
 	controllerServer = server
-	go server.Server.Start()
+	server.Server.Start()
 	return server
 }
 
@@ -80,6 +80,11 @@ cmdLoop:
 		case strings.HasPrefix(line, "quit"):
 			InitiateShutdown()
 			break cmdLoop
+		case strings.HasPrefix(line, "template"):
+			template.HandleTemplateCommand(line)
+			break
+		default:
+			logger.Info("Unknown command. Use 'help' for help.")
 		}
 	}
 }

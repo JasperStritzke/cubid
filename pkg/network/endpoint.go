@@ -17,8 +17,8 @@ func (endpoint *Endpoint) SendPacket(packet *packet.Packet) error {
 }
 
 func (endpoint *Endpoint) SendPackets(packets ...*packet.Packet) error {
-	for _, packet := range packets {
-		err := endpoint.SendPacket(packet)
+	for _, p := range packets {
+		err := endpoint.SendPacket(p)
 
 		if err != nil {
 			return err
@@ -26,4 +26,12 @@ func (endpoint *Endpoint) SendPackets(packets ...*packet.Packet) error {
 	}
 
 	return nil
+}
+
+func (endpoint *Endpoint) Close() error {
+	return endpoint.conn.Close()
+}
+
+func (endpoint *Endpoint) IP() string {
+	return endpoint.conn.RemoteAddr().String()
 }

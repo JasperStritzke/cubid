@@ -1,13 +1,13 @@
 package template
 
 import (
-	"encoding/json"
 	"github.com/jasperstritzke/cubid/pkg/config"
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
 	"github.com/jasperstritzke/cubid/pkg/model"
 	"github.com/jasperstritzke/cubid/pkg/util/fileutil"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 const (
@@ -16,13 +16,14 @@ const (
 	templateExecutable = "server.jar"
 )
 
-var templates []model.Template
+var templates map[string][]model.Template
 
 func LoadTemplates() {
-	templates = nil
+	templates = make(map[string][]model.Template)
 
 	_ = os.Mkdir(templateFolder, os.ModePerm)
 
+	logger.Info("Loading templates...")
 	loadTemplatesFromFolder(templateFolder)
 
 	if len(templates) == 0 {
@@ -43,7 +44,7 @@ func LoadTemplates() {
 }
 
 func loadTemplatesFromFolder(pth string) {
-	files, err := ioutil.ReadDir(templateFolder)
+	files, err := ioutil.ReadDir(pth)
 
 	if err != nil {
 		logger.Error("Unable to load templates: " + err.Error())
@@ -52,8 +53,8 @@ func loadTemplatesFromFolder(pth string) {
 
 	for _, file := range files {
 		if file.IsDir() {
-			if fileutil.ExistsFile(pth + templateDataFile) {
-				loadTemplate(file.Name(), pth+file.Name())
+			if fileutil.ExistsFile(pth + file.Name() + "/" + templateDataFile) {
+				loadTemplate(file.Name(), pth+file.Name()+"/")
 				continue
 			}
 
@@ -63,8 +64,6 @@ func loadTemplatesFromFolder(pth string) {
 }
 
 func loadTemplate(folderName, pth string) {
-	logger.Info("Loading template " + pth + "...")
-
 	dataFile := pth + templateDataFile
 
 	var template model.Template
@@ -76,25 +75,35 @@ func loadTemplate(folderName, pth string) {
 	}
 
 	if !fileutil.ExistsFile(pth + templateExecutable) {
-		if len(template.Version.Display) == 0 {
-			logger.Error("Unable to load template " + pth + ": Executable with name " + templateExecutable + " not found.")
+		if len(template.Version.BuildURL) == 0 {
+			logger.Error("Unable to load template " + pth + ": Executable with name " + templateExecutable + " not found and no build URL exists.")
 			logger.Warn("Please move a executable jar file with the name " + templateExecutable + " into the template.")
 			return
 		}
 
-		logger.Warn("Downloading missing executable for template " + pth + "...")
-		err = template.Version.DownloadTo(pth + templateExecutable)
+		if len(template.Version.BuildURL) > 0 {
+			logger.Warn("Downloading missing executable for template " + pth + "...")
+			err = template.Version.DownloadTo(pth + templateExecutable)
 
-		if err != nil {
-			logger.Error("Unable to download version " + template.Version.Display + " for template " + pth + ".")
-			return
+			if err != nil {
+				logger.Error("Unable to download version " + template.Version.Display + " for template " + pth + ".")
+				logger.Error("Error: " + err.Error())
+				return
+			}
 		}
 	}
 
-	template.Group = folderName
+	var groupName = folderName
+	pathSplit := strings.Split(pth, "/")
 
-	logger.Info("Successfully loaded template " + pth + ".")
-	templates = append(templates, template)
+	if len(pathSplit) >= 2 {
+		groupName = pathSplit[len(pathSplit)-3]
+	}
+
+	template.Group = groupName
+
+	logger.Info("Successfully loaded template " + groupName + "/" + template.Name + ".")
+	templates[template.Group] = append(templates[template.Group], template)
 }
 
 func CreateTemplate(templateGroup, name string, proxy bool, version model.VersionValue) error {
@@ -113,7 +122,7 @@ func CreateTemplate(templateGroup, name string, proxy bool, version model.Versio
 		return err
 	}
 
-	encoder := json.NewEncoder(file)
+	encoder := fileutil.NewPrettyEncoder(file)
 
 	err = encoder.Encode(template)
 	if err != nil {

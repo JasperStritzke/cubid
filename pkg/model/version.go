@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"github.com/jasperstritzke/cubid/pkg/util/fileutil"
 )
 
@@ -23,42 +22,13 @@ func (v *VersionValue) DownloadTo(pth string) error {
 	return fileutil.DownloadFile(pth, v.BuildURL)
 }
 
-func (v *VersionValue) MarshalJSON() ([]byte, error) {
-	return []byte(v.Display), nil
-}
-
-func (v *VersionValue) UnmarshalJSON(data []byte) error {
-	display := string(data)
-
-	var version VersionValue
-
-	switch display {
-	case Version.BungeeCord.Display:
-		version = Version.BungeeCord
-		break
-	case Version.Waterfall.Display:
-		version = Version.Waterfall
-		break
-	case Version.Paper16.Display:
-		version = Version.Paper16
-		break
-	case Version.Paper17.Display:
-		version = Version.Paper17
-		break
-	default:
-		v.Display = ""
-		v.BuildURL = ""
-		v.Mention = ""
-		v.Proxy = false
-
-		return errors.New("Unable to recognize version by " + display)
+func (v VersionValue) ProxyAsString() string {
+	var proxyString = "Server"
+	if v.Proxy {
+		proxyString = "Proxy"
 	}
 
-	v.Display = version.Display
-	v.BuildURL = version.BuildURL
-	v.Mention = version.Mention
-	v.Proxy = version.Proxy
-	return nil
+	return proxyString
 }
 
 type Versions struct {
@@ -98,3 +68,5 @@ var Version = Versions{
 		Proxy: false,
 	},
 }
+
+var VersionsAsArray = []VersionValue{Version.BungeeCord, Version.Waterfall, Version.Paper17, Version.Paper16}

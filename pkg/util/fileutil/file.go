@@ -115,5 +115,5 @@ func DownloadFile(filepath string, url string) error {
 func ExistsFile(filepath string) bool {
 	_, e := os.Stat(filepath)
 
-	return e == nil
+	return !os.IsNotExist(e)
 }

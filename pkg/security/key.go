@@ -42,7 +42,7 @@ func LoadControllerKey() {
 	logger.Info("Successfully loaded secret-key.")
 }
 
-func HashedKey() string {
+func GetHashedKey() string {
 	syncOnce.Do(func() {
 		hashedKey = util.HashString(secretKey)
 	})
@@ -50,6 +50,6 @@ func HashedKey() string {
 	return hashedKey
 }
 
-func CompareHashedKey(hash string) bool {
-	return HashedKey() == hash
+func IsHashedKeyValid(hash string) bool {
+	return GetHashedKey() == hash
 }

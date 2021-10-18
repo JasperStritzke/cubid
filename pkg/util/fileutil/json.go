@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func NewPrettyDecoder(w io.Writer) *json.Encoder {
+func NewPrettyEncoder(w io.Writer) *json.Encoder {
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "  ")
 	return encoder

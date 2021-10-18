@@ -15,8 +15,8 @@ import (
 var controllerConfig Config
 
 var (
-	executorServer *executor_network.ExecutorServer
-	executorClient *executor_network.ExecutorClient
+	executorServer *executor_network.ExecutorServer = nil
+	executorClient *executor_network.ExecutorClient = nil
 )
 
 func Main() {
@@ -26,8 +26,8 @@ func Main() {
 
 	security.LoadControllerKey()
 
-	connectClient()
-	startServer()
+	go connectClient()
+	go startServer()
 
 	defer InitiateShutdown()
 
@@ -39,7 +39,7 @@ func startServer() *executor_network.ExecutorServer {
 	server := executor_network.NewExecutorServer(controllerConfig.Host)
 	executorServer = server
 
-	go server.Server.Start()
+	server.Server.Start()
 	return server
 }
 
@@ -47,12 +47,13 @@ func connectClient() *executor_network.ExecutorClient {
 	client := executor_network.NewExecutorClient(controllerConfig.ControllerHost)
 	executorClient = client
 
-	go client.Client.Connect()
+	client.Connect()
 	return client
 }
 
 func loadConfig() {
 	configPath := "base.json"
+	//Initialize config and run through form if no config exists
 	err := config.InitConfigIfNotExists(configPath, configForm)
 
 	if err != nil {

@@ -21,7 +21,7 @@ func InitConfigIfNotExists(path string, configCallback func() interface{}) error
 	}
 
 	if created {
-		encoder := fileutil.NewPrettyDecoder(file)
+		encoder := fileutil.NewPrettyEncoder(file)
 
 		encodeErr := encoder.Encode(cfg)
 
