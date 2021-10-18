@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/jasperstritzke/cubid/pkg/fileutil"
+	"github.com/jasperstritzke/cubid/pkg/util/fileutil"
 	"os"
 )
 

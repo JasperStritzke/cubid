@@ -3,8 +3,8 @@ package security
 import (
 	"encoding/base64"
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
-	"github.com/jasperstritzke/cubid/pkg/fileutil"
 	"github.com/jasperstritzke/cubid/pkg/util"
+	"github.com/jasperstritzke/cubid/pkg/util/fileutil"
 	"github.com/jasperstritzke/cubid/pkg/util/random"
 	"sync"
 )

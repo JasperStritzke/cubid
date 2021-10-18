@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/chzyer/readline"
 	"github.com/jasperstritzke/cubid/cmd/controller/controller_network"
+	"github.com/jasperstritzke/cubid/cmd/controller/template"
 	"github.com/jasperstritzke/cubid/pkg/config"
 	"github.com/jasperstritzke/cubid/pkg/console/commandline"
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
@@ -26,6 +27,8 @@ func Main() {
 	//initialize key if not existing
 	security.InitControllerKey()
 	security.LoadControllerKey()
+
+	template.LoadTemplates()
 
 	//Always must be executed last because it's a blocking task.
 	startCommandLine()

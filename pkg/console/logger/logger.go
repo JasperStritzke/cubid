@@ -3,7 +3,7 @@ package logger
 import (
 	"github.com/ivpusic/golog"
 	"github.com/jasperstritzke/cubid/pkg/console/color"
-	"github.com/jasperstritzke/cubid/pkg/fileutil"
+	"github.com/jasperstritzke/cubid/pkg/util/fileutil"
 	"time"
 )
 

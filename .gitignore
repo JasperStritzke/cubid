@@ -3,5 +3,6 @@
 
 logs/
 
-#folder used locally for debugging
+#folder and files used locally for debugging
 debug/
+config.json
