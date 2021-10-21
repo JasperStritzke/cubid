@@ -18,10 +18,10 @@ const (
 	templateExecutable = "executable.jar"
 )
 
-var templates map[string][]model.Template
+var templates map[string]map[string]model.Template
 
 func LoadTemplates() {
-	templates = make(map[string][]model.Template)
+	templates = make(map[string]map[string]model.Template)
 
 	_ = os.Mkdir(templateFolder, os.ModePerm)
 
@@ -152,8 +152,28 @@ func loadTemplate(folderName, pth string) {
 		}
 	}
 
+	v, exists := templates[template.Group]
+	if !exists {
+		v = make(map[string]model.Template)
+		templates[template.Group] = v
+	}
+
+	templates[template.Group][template.Name] = template
 	logger.Info("Successfully loaded template " + groupName + "/" + template.Name + ".")
-	templates[template.Group] = append(templates[template.Group], template)
+}
+
+func GetTemplate(templateGroup, name string) *model.Template {
+	templatesByGroup, existsGroup := templates[templateGroup]
+
+	if existsGroup {
+		templateByName, existsTemplate := templatesByGroup[name]
+
+		if existsTemplate {
+			return &templateByName
+		}
+	}
+
+	return nil
 }
 
 func CreateTemplate(templateGroup, name string, version model.VersionValue) error {
