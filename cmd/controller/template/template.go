@@ -1,7 +1,9 @@
 package template
 
 import (
+	"fmt"
 	"github.com/jasperstritzke/cubid/pkg/config"
+	"github.com/jasperstritzke/cubid/pkg/console/color"
 	"github.com/jasperstritzke/cubid/pkg/console/logger"
 	"github.com/jasperstritzke/cubid/pkg/model"
 	"github.com/jasperstritzke/cubid/pkg/util/fileutil"
@@ -13,7 +15,7 @@ import (
 const (
 	templateFolder     = "templates/"
 	templateDataFile   = "template.json"
-	templateExecutable = "server.jar"
+	templateExecutable = "executable.jar"
 )
 
 var templates map[string][]model.Template
@@ -25,22 +27,65 @@ func LoadTemplates() {
 
 	logger.Info("Loading templates...")
 	loadTemplatesFromFolder(templateFolder)
+}
 
-	if len(templates) == 0 {
-		logger.Warn("No templates found. Creating default templates...")
+func SetEnabled(group, templateName string, state bool) (bool, error) {
+	return recursiveSetEnabled(templateFolder, group, templateName, state)
+}
 
-		err := CreateTemplate("Proxy", "default", true, model.Version.Waterfall)
-		if err != nil {
-			logger.Error("Error creating default proxy group: " + err.Error())
-			return
+func recursiveSetEnabled(pth, group, templateName string, state bool) (bool, error) {
+	files, err := ioutil.ReadDir(pth)
+
+	if err != nil {
+		return false, err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			success, rErr := recursiveSetEnabled(pth+file.Name()+"/", group, templateName, state)
+			if rErr != nil {
+				return false, rErr
+			}
+
+			if success {
+				return success, nil
+			}
 		}
 
-		err = CreateTemplate("Lobby", "default", true, model.Version.Paper17)
-		if err != nil {
-			logger.Error("Error creating default lobby group: " + err.Error())
-			return
+		if file.Name() == templateDataFile {
+			if fileutil.ExistsFile(pth+file.Name()) && strings.Contains(pth, "/"+group+"/"+templateName+"/") {
+				rErr := setEnabledLiteral(pth+file.Name(), state)
+				return rErr == nil, rErr
+			}
 		}
 	}
+
+	return false, nil
+}
+
+func setEnabledLiteral(dataFilePath string, state bool) error {
+	var scopeTemplate model.Template
+	err := config.LoadConfig(dataFilePath, &scopeTemplate)
+
+	if err != nil {
+		logger.Error("Template not found. (if folder structure is deeply nested, it's required to toggle manually)")
+		return err
+	}
+
+	scopeTemplate.Enabled = state
+
+	err = config.WriteConfig(dataFilePath, &scopeTemplate)
+	if err != nil {
+		return err
+	}
+
+	if state {
+		logger.Info("Template was enabled.")
+	} else {
+		logger.Warn("Template was disabled.")
+	}
+
+	return nil
 }
 
 func loadTemplatesFromFolder(pth string) {
@@ -69,6 +114,20 @@ func loadTemplate(folderName, pth string) {
 	var template model.Template
 	err := config.LoadConfig(dataFile, &template)
 
+	var groupName = folderName
+	pathSplit := strings.Split(pth, "/")
+
+	if len(pathSplit) >= 2 {
+		groupName = pathSplit[len(pathSplit)-3]
+	}
+
+	template.Group = groupName
+
+	if !template.Enabled {
+		fmt.Println(color.Yellow + "(i) Skipping template " + template.Group + "/" + template.Name + " because it's disabled.")
+		return
+	}
+
 	if err != nil {
 		logger.Error("Unable to load template at " + pth + ". Please re-initialize template or delete it.")
 		return
@@ -93,24 +152,15 @@ func loadTemplate(folderName, pth string) {
 		}
 	}
 
-	var groupName = folderName
-	pathSplit := strings.Split(pth, "/")
-
-	if len(pathSplit) >= 2 {
-		groupName = pathSplit[len(pathSplit)-3]
-	}
-
-	template.Group = groupName
-
 	logger.Info("Successfully loaded template " + groupName + "/" + template.Name + ".")
 	templates[template.Group] = append(templates[template.Group], template)
 }
 
-func CreateTemplate(templateGroup, name string, proxy bool, version model.VersionValue) error {
+func CreateTemplate(templateGroup, name string, version model.VersionValue) error {
 	template := model.Template{
 		Name:    name,
-		Proxy:   proxy,
 		Version: version,
+		Enabled: true,
 	}
 
 	path := templateFolder + "/" + templateGroup + "/" + name + "/"

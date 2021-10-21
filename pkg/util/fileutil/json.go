@@ -15,3 +15,7 @@ func NewPrettyEncoder(w io.Writer) *json.Encoder {
 func NewDecoder(r io.Reader) *json.Decoder {
 	return json.NewDecoder(r)
 }
+
+func MarshalIndent(cfg interface{}) ([]byte, error) {
+	return json.MarshalIndent(cfg, "", "  ")
+}

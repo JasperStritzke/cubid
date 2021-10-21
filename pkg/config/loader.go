@@ -40,6 +40,16 @@ func InitConfigIfNotExists(path string, configCallback func() interface{}) error
 	return nil
 }
 
+func WriteConfig(path string, cfg interface{}) error {
+	bytes, err := fileutil.MarshalIndent(cfg)
+
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, bytes, os.ModePerm)
+}
+
 func LoadConfig(path string, config interface{}) error {
 	file, err := os.Open(path)
 

@@ -15,7 +15,7 @@ func OpenFileOrCreate(pth string) (*os.File, error, bool) {
 	_, e := os.Stat(pth)
 
 	if e == nil {
-		file, err := os.Open(pth)
+		file, err := os.OpenFile(pth, os.O_RDWR, os.ModeAppend)
 		return file, err, false
 	}
 

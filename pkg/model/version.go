@@ -1,7 +1,9 @@
 package model
 
 import (
+	"errors"
 	"github.com/jasperstritzke/cubid/pkg/util/fileutil"
+	"strings"
 )
 
 type VersionValue struct {
@@ -70,3 +72,13 @@ var Version = Versions{
 }
 
 var VersionsAsArray = []VersionValue{Version.BungeeCord, Version.Waterfall, Version.Paper17, Version.Paper16}
+
+func GetVersionByString(s string) (VersionValue, error) {
+	for _, version := range VersionsAsArray {
+		if strings.ToLower(version.Display) == s {
+			return version, nil
+		}
+	}
+
+	return VersionValue{}, errors.New("Provided version not pre configured. Please use createEmpty or specify a valid version")
+}
